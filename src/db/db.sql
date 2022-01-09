@@ -26,5 +26,5 @@ CREATE TABLE tasks (
 CREATE TABLE ideas (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    status CHAR(1) NOT NULL
+    datetime VARCHAR(26) NOT NULL
 );
