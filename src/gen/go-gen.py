@@ -23,40 +23,40 @@ def GenerateGoProject(name: str):
     Path(f'{PATH}/{name}/.gitignore').touch()
     alternativeOpen(f'{PATH}/{name}/.gitignore', '.env')
 
-    mkdir(f'{PATH}/{name}/src')
-    mkdir(f'{PATH}/{name}/src/requests')
+    Path(f'{PATH}/{name}/src').mkdir()
+    Path(f'{PATH}/{name}/src/requests').mkdir()
     system(f'git init {PATH}/name')
     Path(f'{PATH}/{name}/src/main.go').touch()
     alternativeOpen(f'{PATH}/{name}/src/main.go', 'package main')
 
-    mkdir(f'{PATH}/{name}/src/models')
+    Path(f'{PATH}/{name}/src/models').mkdir()
     Path(f'{PATH}/{name}/src/models/models.go').touch()
     alternativeOpen(f'{PATH}/{name}/src/models/models.go', 'package models')
 
-    mkdir(f'{PATH}/{name}/src/certificates')
+    Path(f'{PATH}/{name}/src/certificates').mkdir()
     Path(f'{PATH}/{name}/src/certificates/certificates.go').touch()
     alternativeOpen(
         f'{PATH}/{name}/src/certificates/certificates.go', 'package certificates')
 
-    mkdir(f'{PATH}/{name}/src/utils')
+    Path(f'{PATH}/{name}/src/utils').mkdir()
     Path(f'{PATH}/{name}/src/utils/utils.go').touch()
     alternativeOpen(f'{PATH}/{name}/src/utils/utils.go', 'package utils')
 
-    mkdir(f'{PATH}/{name}/src/db')
+    Path(f'{PATH}/{name}/src/db').mkdir()
     Path(f'{PATH}/{name}/src/db/db.go').touch()
     alternativeOpen(f'{PATH}/{name}/src/db/db.go', 'package db')
 
-    mkdir(f'{PATH}/{name}/src/middleware')
+    Path(f'{PATH}/{name}/src/middleware').mkdir()
     Path(f'{PATH}/{name}/src/middleware/middleware.go').touch()
     alternativeOpen(
         f'{PATH}/{name}/src/middleware/middleware.go', 'package middleware')
 
-    mkdir(f'{PATH}/{name}/src/controllers')
+    Path(f'{PATH}/{name}/src/controllers').mkdir()
     Path(f'{PATH}/{name}/src/controllers/controllers.go').touch()
     alternativeOpen(
         f'{PATH}/{name}/src/controllers/controllers.go', 'package controllers')
 
-    mkdir(f'{PATH}/{name}/src/routers')
+    Path(f'{PATH}/{name}/src/routers').mkdir()
     Path(f'{PATH}/{name}/src/routers/routers.go').touch()
     alternativeOpen(f'{PATH}/{name}/src/routers/routers.go', 'package routers')
 
@@ -64,8 +64,7 @@ def GenerateGoProject(name: str):
     system(f'go mod init github.com/luisnquin/{name}/src')
     system('git add --all')
     system('git commit -m "first commit"')
-    system(f'cd {cwd}')
 
 
 if __name__ == '__main__':
-    GenerateGoProject('tests')
+    GenerateGoProject('tests') 
