@@ -18,8 +18,13 @@ def get(tablename: str):
     """
     Just brind me a table from the connected database
     """
+
     conn = DbConnection()
-    rows = conn.execute(f'SELECT * FROM {tablename};', get=True)
+    if tablename == 'tasks':
+        rows = conn.execute(Task.get(), get=True)
+    else:
+        rows = conn.execute(f'SELECT * FROM {tablename};', get=True)
+
     if type(rows) == str:
         typer.echo(rows)
     else:
@@ -29,16 +34,40 @@ def get(tablename: str):
 
 @app.command()
 def addTask(
-        name: str = typer.Option(None, prompt='Give me the Task name'),
-        description: str = typer.Option(None, prompt='Give the task description(Optional)')):
+        name: str = typer.Option(
+            None, prompt='Give me the Task name'
+        ),
+        category: str = typer.Option(
+            None, prompt='Give me the category name'
+        ),
+        status: int = typer.Option(None, prompt='Status?[0/1]')):
     """
     Just type: vert addtask
     """
+
     conn = DbConnection()
-    if description:
-        sentence = Task(TaskSchema(name=name, description=description)).add()
-    else:
-        sentence = Task(TaskSchema(name=name)).add()
+    flag = conn.category_exists(category)
+
+    if flag != True:
+        typer.echo('The category does not exists!')
+        typer.Exit()
+        return
+
+    if status not in [0, 1]:
+        typer.echo('Bad status')
+        typer.Exit()
+        return
+
+    sentence = Task(TaskSchema(
+        name=name, category=category, status=status)).add()
+
+    typer.echo(conn.execute(sentence=sentence))
+
+
+@app.command()
+def updateTaskStatus(id: int = typer.Argument(None), status: int = typer.Option(None, '--status')):
+    conn = DbConnection()
+    sentence = Task(TaskSchema(id=id, status=status)).updateStatus()
 
     typer.echo(conn.execute(sentence=sentence))
 

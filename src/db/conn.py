@@ -1,7 +1,9 @@
-from constants.constants import DSN
-from typing import Optional
 from datetime import datetime
+
+from typing import Optional
 import psycopg2
+
+from constants.constants import DSN
 
 
 class DbConnection():
@@ -9,19 +11,19 @@ class DbConnection():
     cursor: any
 
     def __str__(self):
-        return 'Nothing to connnect to Vert!'
+        return 'Waiting for requests!'
 
     def execute(self, sentence: str, get: Optional[bool] = False):
         self.connection = psycopg2.connect(DSN)
         self.cursor = self.connection.cursor()
 
+        # The targets to protect are the queries that gonna be executed
         try:
-            if get is not None:
-                if get == True:
-                    self.cursor.execute(sentence)
-                    data = self.cursor.fetchall()
-                    self.connection.close()
-                    return data
+            if get:
+                self.cursor.execute(sentence)
+                data = self.cursor.fetchall()
+                self.connection.close()
+                return data
 
             self.cursor.execute(sentence)
         except Exception as error:
@@ -29,4 +31,16 @@ class DbConnection():
 
         self.connection.commit()
         self.connection.close()
-        return 'The last action was committed!'
+        return '\nThe last action was committed!'
+
+    def category_exists(self, category: str):
+        self.connection = psycopg2.connect(DSN)
+        self.cursor = self.connection.cursor()
+
+        self.cursor.execute(
+            f"SELECT COUNT(id) FROM categories WHERE name LIKE '{category}%';"
+        )
+
+        result = self.cursor.fetchone()[0]
+        self.connection.close()
+        return result
