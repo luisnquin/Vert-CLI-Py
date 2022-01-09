@@ -1,5 +1,5 @@
+from os import system, getcwd
 from pathlib import Path
-from os import system, getcwd, mkdir
 from re import search
 
 import typer
@@ -25,7 +25,7 @@ def GenerateGoProject(name: str):
 
     Path(f'{PATH}/{name}/src').mkdir()
     Path(f'{PATH}/{name}/src/requests').mkdir()
-    system(f'git init {PATH}/name')
+    system(f'git init {PATH}/{name}')
     Path(f'{PATH}/{name}/src/main.go').touch()
     alternativeOpen(f'{PATH}/{name}/src/main.go', 'package main')
 
@@ -61,7 +61,6 @@ def GenerateGoProject(name: str):
     alternativeOpen(f'{PATH}/{name}/src/routers/routers.go', 'package routers')
 
     system(f'cd {PATH}/{name}/src')
-    system(f'go mod init github.com/luisnquin/{name}/src')
     system('git add --all')
     system('git commit -m "first commit"')
 
