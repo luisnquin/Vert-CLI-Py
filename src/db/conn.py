@@ -1,27 +1,26 @@
 from datetime import datetime
+from typing import Optional, Union
 
-from typing import Optional
 import psycopg2
 
 from constants.constants import DSN
 
 
 class DbConnection():
-    connection: any
-    cursor: any
+    connection: object
+    cursor: object
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Waiting for requests!'
 
-    def execute(self, query: str, get: Optional[bool] = False):
+    def execute(self, query: str, get: Optional[bool] = False) -> Union[tuple, str]:
         self.connection = psycopg2.connect(DSN)
         self.cursor = self.connection.cursor()
 
-        # The targets to protect are the queries that gonna be executed
         try:
             if get:
                 self.cursor.execute(query)
-                data = self.cursor.fetchall()
+                data: tuple = self.cursor.fetchall()
                 self.connection.close()
                 return data
 
@@ -33,12 +32,12 @@ class DbConnection():
         self.connection.close()
         return '\nThe last action was committed!'
 
-    def exists(self, query:str):
+    def exists(self, query: str) -> int:
         self.connection = psycopg2.connect(DSN)
         self.cursor = self.connection.cursor()
 
         self.cursor.execute(query)
 
-        result = self.cursor.fetchone()[0]
+        result: int = self.cursor.fetchone()[0]
         self.connection.close()
         return result

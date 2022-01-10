@@ -2,19 +2,18 @@ from pathlib import Path
 from os import system
 from re import search
 
-import typer
+from typer import Abort
 
-from .utils import alternativeOpen, getconfigJSON
-
-
-PATH = getconfigJSON('./config.json')['path']
+from utils.utils import alternativeOpen, getconfigJSON, printWarning
 
 
-def GeneratePyProject(name: str):
+PATH: str = getconfigJSON('./config.json')['path']
+
+
+def GeneratePyProject(name: str) -> None:
     if search("\s", name) is not None:
-        typer.echo('NO SPACES!')
-        typer.Exit()
-        return
+        printWarning('No spaces, please, It would create two directories')
+        raise Abort()
 
     Path(f'{PATH}/{name}').mkdir()
     Path(f'{PATH}/{name}/.env').touch()
@@ -37,4 +36,4 @@ def GeneratePyProject(name: str):
 
 
 if __name__ == '__main__':
-    GeneratePyProject('testsproject')
+    pass
