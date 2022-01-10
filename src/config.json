@@ -1,7 +1,7 @@
 {
-    "path": "/home/luisnquin/workspace/tests",
-    "database": "<dbname>",
-    "user": "<username>",
+    "path": "/home/luisnquin/workspace/projects",
+    "database": "<db>",
+    "user": "<user>",
     "password": "<pwd>",
     "host": "localhost",
     "port": 5432

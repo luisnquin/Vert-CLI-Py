@@ -1,8 +1,7 @@
-from typing import Union
-
 from rich.console import Console
 from rich.table import Table
 from rich.box import SQUARE
+from typing import Union
 import typer
 
 from gen.gogen import GenerateGoProject
@@ -14,7 +13,7 @@ from db.models import *
 
 app: object = typer.Typer()
 console: object = Console()
-__version__: str = 'v0.6.0'
+__version__: str = 'v0.7.0'
 
 
 @app.command()
@@ -22,12 +21,30 @@ def version():
     """
     vert version
     """
-    printSuccess(f'\nWelcome!\n\nVert CLI: {__version__}')
+    printSuccess(f'Welcome!\n\nVert CLI: {__version__}')
     raise typer.Exit()
 
 
 @app.command()
-def showmytables():
+def migrate():
+    """
+    vert migrate | Just if you broke something
+    """
+    conn: object = DbConnection()
+    printSuccess(conn.migrate('./db/db.sql'))
+
+
+@app.command()
+def dropandmigrate():
+    """
+    vert dropandmigrate
+    """
+    conn: object = DbConnection()
+    printSuccess(conn.dropandcreate('./db/db.sql'))
+
+
+@app.command()
+def showtables():
     """
     vert showmytables
     """
@@ -38,7 +55,7 @@ def showmytables():
 @app.command()
 def showcategories():
     conn: object = DbConnection()
-    rows = conn.execute('SELECT name FROM categories', get=True)
+    rows: tuple = conn.execute('SELECT name FROM categories', get=True)
     typer.echo('\nCategories:\n')
     for row in rows:
         typer.echo(row[0])
@@ -47,24 +64,10 @@ def showcategories():
 
 
 @app.command()
-def migrate():
-    """
-    vert migrate | Just if you broke something
-    """
-    pass
-
-
-@app.command()
-def dropandmigrate():
-    pass
-
-
-@app.command()
 def get(tablename: str = typer.Argument(...)):
     """
     vert get <tablename> | To see all -> vert showmytables
     """
-
     conn: object = DbConnection()
     if tablename in ['tasks', 'Tasks']:
         rows: Union[tuple, str] = conn.execute(TaskTable.get(), get=True)
@@ -75,7 +78,7 @@ def get(tablename: str = typer.Argument(...)):
                 ' > If you broke the database -> vert dropandmigrate')
             raise typer.Exit(code=1)
 
-        table = Table(title="Tasks", box=SQUARE)
+        table: object = Table(title="Tasks", box=SQUARE)
         table.add_column('ID', justify='center')
         table.add_column('Name', justify='center')
         table.add_column('Category', justify='center')
@@ -88,7 +91,7 @@ def get(tablename: str = typer.Argument(...)):
         raise typer.Exit()
 
     else:
-        rows = conn.execute(f'SELECT * FROM {tablename};', get=True)
+        rows: tuple = conn.execute(f'SELECT * FROM {tablename};', get=True)
         if type(rows) == str:
             printError(rows)
             printSuggestion(' > Check your CLI config -> vert configdbconn')
@@ -97,7 +100,7 @@ def get(tablename: str = typer.Argument(...)):
             raise typer.Exit(code=1)
 
         if tablename in ['status', 'Status']:
-            table = Table(title=tablename.capitalize(), box=SQUARE)
+            table: object = Table(title=tablename.capitalize(), box=SQUARE)
             table.add_column('ID', justify='center')
             table.add_column('Symbol', justify='center')
             for row in rows:
@@ -107,7 +110,7 @@ def get(tablename: str = typer.Argument(...)):
             raise typer.Exit()
 
         if tablename in ['categories', 'Categories']:
-            table = Table(title=tablename.capitalize(), box=SQUARE)
+            table: object = Table(title=tablename.capitalize(), box=SQUARE)
             table.add_column('ID', justify='center')
             table.add_column('Category', justify='center')
             for row in rows:
@@ -117,7 +120,7 @@ def get(tablename: str = typer.Argument(...)):
             raise typer.Exit()
 
         if tablename in ['Ideas', 'ideas']:
-            table = Table(title=tablename.capitalize(), box=SQUARE)
+            table: object = Table(title=tablename.capitalize(), box=SQUARE)
             table.add_column('ID', justify='center')
             table.add_column('Name', justify='center')
             table.add_column('Datetime', justify='center')
@@ -138,8 +141,8 @@ def addTask(name: str = typer.Option(..., prompt='Task name'), category: str = t
     vert addtask
     """
 
-    conn = DbConnection()
-    flag = conn.exists(CategoryTable.exists(category))
+    conn: object = DbConnection()
+    flag: bool = conn.exists(CategoryTable.exists(category))
 
     if flag != True:
         printError('The category does not exists!\n')
@@ -156,8 +159,8 @@ def addCategory(name: str = typer.Option(..., prompt='Name of the new category')
     """
     vert addcategory
     """
-    conn = DbConnection()
-    query = CategoryTable(name=name).add()
+    conn: object = DbConnection()
+    query: str = CategoryTable(name=name).add()
     typer.echo(conn.execute(query))
     raise typer.Exit()
 
@@ -167,8 +170,8 @@ def addIdea(name: str = typer.Option(..., prompt='Idea')):
     """
     vert addidea
     """
-    conn = DbConnection()
-    query = IdeaTable(name=name).add()
+    conn: object = DbConnection()
+    query: str = IdeaTable(name=name).add()
     typer.echo(conn.execute(query))
     raise typer.Exit()
 
@@ -178,13 +181,12 @@ def updateTaskStatus(id: int = typer.Argument(...), status: int = typer.Option(.
     """
     vert updatetaskstatus <task-id> --status <0 | 1>
     """
-
     if status not in [0, 1]:
         printWarning('No changes, your status need to be 0 or 1')
         raise typer.Exit(code=1)
 
-    conn = DbConnection()
-    query = TaskTable(id=id, status=status).updateStatus()
+    conn: object = DbConnection()
+    query: str = TaskTable(id=id, status=status).updateStatus()
     typer.echo(conn.execute(query=query))
     raise typer.Exit()
 
@@ -194,16 +196,15 @@ def updateTaskCategory(id: int = typer.Argument(...), category: str = typer.Opti
     """
     vert updatetaskcategory <id> --category <category-name>
     """
-
-    conn = DbConnection()
-    flag = conn.exists(CategoryTable.exists(category=category))
+    conn: object = DbConnection()
+    flag: str = conn.exists(CategoryTable.exists(category=category))
     if flag:
-        query = TaskTable(id=id, category=category)
+        query: str = TaskTable(id=id, category=category).updateCategory()
         typer.echo(conn.execute(query=query))
         raise typer.Exit()
 
     printWarning("The category doesn't exist in <categories-table>")
-    printSuggestion('\nCheck -> vert showcategories')
+    printSuggestion('Check -> vert showcategories')
     raise typer.Exit(code=1)
 
 
@@ -212,8 +213,8 @@ def cleanTasks():
     """
     vert cleantasks
     """
-    conn = DbConnection()
-    query = TaskTable.clean()
+    conn: object = DbConnection()
+    query: str = TaskTable.clean()
     typer.echo(conn.execute(query=query))
     raise typer.Exit()
 
@@ -223,8 +224,8 @@ def deleteTask(id: int = typer.Argument(...)):
     """
     vert deletetask <task-id>
     """
-    conn = DbConnection()
-    query = TaskTable(id=id).delete()
+    conn: object = DbConnection()
+    query: str = TaskTable(id=id).delete()
     typer.echo(conn.execute(query=query))
     raise typer.Exit()
 
@@ -234,8 +235,8 @@ def deleteCategory(id: int = typer.Argument(...)):
     """
     vert deletecategory <category-id>
     """
-    conn = DbConnection()
-    query = CategoryTable(id).delete()
+    conn: object = DbConnection()
+    query: str = CategoryTable(id).delete()
     typer.echo(conn.execute(query))
     raise typer.Exit()
 
@@ -245,37 +246,45 @@ def deleteIdea(id: int = typer.Argument(...)):
     """
     vert deleteidea <idea-id>
     """
-    conn = DbConnection()
-    query = IdeaTable(id).delete()
+    conn: object = DbConnection()
+    query: str = IdeaTable(id).delete()
     typer.echo(conn.execute(query=query))
     raise typer.Exit()
 
 
 @app.command()
-def newgoproject(project_name=typer.Option(..., prompt='Project name', help='A new Go project will be created in your workspace path')):
+def newgoproject(project_name=typer.Option(..., prompt=True, help='A new Go project will be created in your workspace path')):
     """
     vert newgoproject | Config -> vert configworkspace
     """
     GenerateGoProject(project_name)
+    printSuccess('Project ready in: {}'.format(
+        getconfigJSON('./config.json')['path']))
     raise typer.Exit()
 
 
 @app.command()
-def newpyproject(project_name=typer.Option(..., prompt='Project name', help='A new Python project will be created in your workspace path')):
+def newpyproject(project_name=typer.Option(..., prompt=True, help='A new Python project will be created in your workspace path')):
     """
     vert newpyproject | Config -> vert configworkspace
     """
     GeneratePyProject(project_name)
+    printSuccess('Project ready in: {}'.format(
+        getconfigJSON('./config.json')['path']))
     raise typer.Exit()
 
 
 @app.command()
-def configworkspace(path: str = typer.Option(..., prompt=True, help='Path example -> /home/luisnquin/workspace/tests')):
-    config = getconfigJSON('./config.json')
-    # regex
-    config['path'] = path
+def configworkspace(path: str = typer.Option(..., prompt=True, help='Path example -> /home/luisnquin/workspace')):
+    config: dict = getconfigJSON('./config.json')
+    fpath: Union[str, bool] = checkAndFixPath(path)
+    if fpath == False:
+        printWarning('The workspace path was not correct')
+        raise typer.Abort()
+
+    config['path'] = fpath
     overwriteconfigJSON(config, './config.json')
-    printSuccess('\nThe workspace path was changed successfully!')
+    printSuccess('The workspace path was changed successfully!')
     raise typer.Exit()
 
 
@@ -284,10 +293,9 @@ def configdbconn(database: str = typer.Option(..., prompt=True), user: str = typ
                  password: str = typer.Option(..., prompt=True, hide_input=True), host: str = typer.Option('localhost', prompt=True),
                  port: int = typer.Option(5432, prompt=True)):
 
-    config = getconfigJSON('./config.json')
-    # regex numbers and letters
-    config['database'], config['user'], config['password'], config['host'], config['port'] = database, user, password, host, port
-    overwriteconfigJSON(config, './config.json')
+    c:dict = getconfigJSON('./config.json')
+    c['database'], c['user'], c['password'], c['host'], c['port'] = database, user, password, host, port
+    overwriteconfigJSON(c, './config.json')
     printSuccess('\nThe database configuration was changed successfully!')
     raise typer.Exit()
 
