@@ -6,8 +6,7 @@ def alternativeOpen(path: str, to_write: str):
     file.write(to_write)
     file.close()
 
-
-def getconfigJSON(configpath:str):
+def getconfigJSON(configpath: str):
     file = open(configpath, 'r')
     content = json.load(file)
     file.close()

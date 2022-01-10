@@ -1,8 +1,8 @@
 {
     "path": "/home/luisnquin/workspace/tests",
-    "dbname": "<database>",
-    "dbuser": "<user>",
-    "dbpassword": "<password>",
+    "dbname": "vert",
+    "dbuser": "luisnquin",
+    "dbpwd": "randompassword",
     "dbhost": "localhost",
-    "dbport": 5432
+    "dbport": "5432"
 }

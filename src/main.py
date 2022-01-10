@@ -1,33 +1,59 @@
+from getpass import getpass
+
 from rich.console import Console
 from rich.table import Table
 from rich.box import SQUARE
 import typer
 
-from db.conn import DbConnection
-from db.models import *
+from utils import overwriteconfigJSON, printError, printWarning, printSpecial, overwriteconfigJSON, getconfigJSON
 from gen.gogen import GenerateGoProject
 from gen.pygen import GeneratePyProject
+from db.conn import DbConnection
+from db.models import *
 
 
 app = typer.Typer()
 console = Console()
-__version__ = 'v0.5.0'
+__version__ = 'v0.5.1'
 
 
 @app.command()
 def version():
-    typer.echo(f'Welcome!\n\nVert CLI: {__version__}')
+    """
+    vert version
+    """
+    printSpecial(f'\nWelcome!\n\nVert CLI: {__version__}')
+
+
+@app.command()
+def showmytables():
+    """
+    vert showmytables
+    """
+    typer.echo('\nTables:\n - categories\n - tasks\n - ideas')
+
+
+@app.command()
+def migrate():
+    """
+    vert migrate | Just if you broke something
+    """
+    pass
 
 
 @app.command()
 def get(tablename: str):
     """
-    Just brind me a table from the connected database
+    vert get <tablename> | To see all -> vert showmytables
     """
 
     conn = DbConnection()
     if tablename in ['tasks', 'Tasks']:
         rows = conn.execute(TaskTable.get(), get=True)
+        if type(rows) == str:
+            printError(rows)
+            return
+
         table = Table(title="Tasks", box=SQUARE)
         table.add_column('ID', justify='center')
         table.add_column('Name', justify='center')
@@ -43,7 +69,8 @@ def get(tablename: str):
     else:
         rows = conn.execute(f'SELECT * FROM {tablename};', get=True)
         if type(rows) == str:
-            typer.echo(rows)
+            printError(rows)
+            return
 
         if tablename in ['status', 'Status']:
             table = Table(title=tablename.capitalize(), box=SQUARE)
@@ -73,50 +100,52 @@ def get(tablename: str):
             for row in rows:
                 table.add_row(str(row[0]), row[1], row[2])
 
+            console.print(table)
+
         for row in rows:
             typer.echo(row)
 
 
 @app.command()
-def addTask(name: str = typer.Option(
-            None, prompt='Give me the Task name'
-            ),
-            category: str = typer.Option(
-            None, prompt='Give me the category name'
-            )):
+def addTask(name: str = typer.Option(None, prompt='Task name'),
+            category: str = typer.Option(None, prompt='Task category')):
     """
-    Just type: vert addtask
+    vert addtask
     """
 
     conn = DbConnection()
     flag = conn.exists(CategoryTable.exists(category))
 
     if flag != True:
-        typer.echo('The category does not exists!')
+        printError('The category does not exists!')
+        typer.echo('\n\nPrompt:\n type vert get categories')
         typer.Exit()
         return
 
-    if name and category:
-        query = TaskTable(name=name, category=category, status=0).add()
-        typer.echo(conn.execute(query=query))
-        return
-
-    typer.echo("You probably didn't enter the name or the category, so, nothing")
+    query = TaskTable(name=name, category=category, status=0).add()
+    typer.echo(conn.execute(query=query))
+    return
 
 
 @app.command()
 def addCategory(name: str = typer.Argument(None)):
+    """
+    vert addcategory <category-name>
+    """
     if name:
         conn = DbConnection()
         query = CategoryTable(name=name).add()
         typer.echo(conn.execute(query))
         return
 
-    typer.echo('Nothing to do, well')
+    printWarning('Nothing to do, well')
 
 
 @app.command()
-def addIdea(name: str = typer.Option(None, prompt='Give me your idea')):
+def addIdea(name: str = typer.Option(None, prompt='Idea')):
+    """
+    vert addidea
+    """
     conn = DbConnection()
     query = IdeaTable(name=name)
     typer.echo(conn.execute(query))
@@ -124,26 +153,42 @@ def addIdea(name: str = typer.Option(None, prompt='Give me your idea')):
 
 @app.command()
 def updateTaskStatus(id: int = typer.Argument(None), status: int = typer.Option(None, '--status')):
-    conn = DbConnection()
-    query = TaskTable(id=id, status=status).updateStatus()
+    """
+    vert updatetaskstatus <id> --status <status[0 | 1]>
+    """
 
-    typer.echo(conn.execute(query=query))
+    if status:
+        conn = DbConnection()
+        query = TaskTable(id=id, status=status).updateStatus()
+        typer.echo(conn.execute(query=query))
+
+    printWarning('No changes, your forgot to enter --status <argument>')
 
 
 @app.command()
 def updateTaskCategory(id: int = typer.Argument(None), category: str = typer.Option(None, '--category')):
-    conn = DbConnection()
-    flag = conn.exists(CategoryTable.exists(category=category))
-    if flag:
-        query = TaskTable(id=id, category=category)
-        typer.echo(conn.execute(query=query))
-        return
+    """
+    vert updatetaskcategory <id> --category <category-name>
+    """
 
-    typer.echo("The category doesn't exist in -> Categories table")
+    if category:
+        conn = DbConnection()
+        flag = conn.exists(CategoryTable.exists(category=category))
+        if flag:
+            query = TaskTable(id=id, category=category)
+            typer.echo(conn.execute(query=query))
+            return
+
+        printWarning("The category doesn't exist in <categories-table>")
+        return
+    printWarning('No changes, your forgot to enter --category <argument>')
 
 
 @app.command()
 def cleanTasks():
+    """
+    vert cleantasks
+    """
     conn = DbConnection()
     query = TaskTable.clean()
     typer.echo(conn.execute(query=query))
@@ -152,52 +197,84 @@ def cleanTasks():
 @app.command()
 def deleteTask(id: int = typer.Argument(None)):
     """
-    Just type: vert deletetask <task-id>
+    vert deletetask <task-id>
     """
-    conn = DbConnection()
     if id:
+        conn = DbConnection()
         query = TaskTable(id=id).delete()
         typer.echo(conn.execute(query=query))
         return
 
-    typer.echo('Nothing to do, well')
+    printWarning('Nothing to do, well')
 
 
 @app.command()
 def deleteCategory(id: int = typer.Argument(None)):
+    """
+    vert deletecategory <category-id>
+    """
     if id:
         conn = DbConnection()
         query = CategoryTable(id).delete()
         typer.echo(conn.execute(query))
+        return
+
+    printWarning('Nothing to do, well')
 
 
 @app.command()
 def deleteIdea(id: int = typer.Argument(None)):
-    conn = DbConnection()
+    """
+    vert deleteidea <idea-id>
+    """
     if id:
+        conn = DbConnection()
         query = IdeaTable(id).delete()
         typer.echo(conn.execute(query=query))
         return
 
-    typer.echo('Nothing to do, well')
+    printWarning('Nothing to do, well')
 
 
 @app.command()
-def newgoproject(project_name=typer.Option(
-        None, prompt='Give me the name of your new Go project')):
+def newgoproject(project_name=typer.Option(None, prompt='Project name')):
     """
-    If you want to configurate the path to your workspace, type
+    vert newgoproject | Config -> vert configcli
     """
     GenerateGoProject(project_name)
 
 
 @app.command()
-def newpyproject(project_name=typer.Option(
-        None, prompt='Give me the name of your new Py project')):
+def newpyproject(project_name=typer.Option(None, prompt='Project name')):
     """
-    If you want to configurate the path to your workspace, type
+    vert newpyproject | Config -> vert configcli
     """
     GeneratePyProject(project_name)
+
+
+@app.command()
+def configcli(
+        configurePath: bool = typer.Option(False, prompt='Edit workspace?'),
+        configureDBConnection: bool = typer.Option(False, prompt='Edit DB config?')):
+    """
+    vert configcli
+    """
+    config = getconfigJSON('./config.json')
+    print()
+    if configurePath:
+        path = input(
+            'New workspace path(Example: /home/luisnquin/workspace/tests): ')
+        config['path'] = path
+
+    if configureDBConnection:
+        dbname, dbuser, dbpwd = input('Database: '), input('User: '), getpass('Password: ')
+        dbhost, dbport = input('Host: '), input('Port: ')
+
+        config['dbname'], config['dbuser'], config['dbpwd'] = dbname, dbuser, dbpwd
+        config['dbhost'], config['dbport'] = dbhost, dbport
+
+    overwriteconfigJSON(config, './config.json')
+    printSpecial('\nSuccess!')
 
 
 if __name__ == "__main__":

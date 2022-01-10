@@ -12,7 +12,7 @@ PATH = getconfigJSON('./config.json')['path']
 
 def GeneratePyProject(name: str):
     if search("\s", name) is not None:
-        typer.BadParameter('NO SPACES')
+        typer.echo('NO SPACES!')
         typer.Exit()
         return
 
