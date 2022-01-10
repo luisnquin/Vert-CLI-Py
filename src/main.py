@@ -14,7 +14,7 @@ from db.models import *
 
 app: object = typer.Typer()
 console: object = Console()
-__version__: str = 'v0.5.3'
+__version__: str = 'v0.6.0'
 
 
 @app.command()
