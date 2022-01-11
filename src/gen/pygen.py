@@ -4,22 +4,27 @@ from re import search
 
 from typer import Abort
 
-from utils.utils import alternativeOpen, getconfigJSON, printWarning
+from utils.utils import alter_open, get_config, print_warning, print_error
 
 
-PATH: str = getconfigJSON('./config.json')['path']
+PATH: str = get_config('./config.json')['path']
 
 
-def GeneratePyProject(name: str) -> None:
+def gen_py_project(name: str) -> None:
     if search("\s", name) is not None:
-        printWarning('No spaces, please, It would create two directories')
+        print_warning('No spaces. It would create two directories')
         raise Abort()
 
-    Path(f'{PATH}/{name}').mkdir()
+    try:
+        Path(f'{PATH}/{name}').mkdir()
+    except Exception as error:
+        print_error(error)
+        raise Abort()
+
     Path(f'{PATH}/{name}/.env').touch()
     Path(f'{PATH}/{name}/.env.example').touch()
     Path(f'{PATH}/{name}/.gitignore').touch()
-    alternativeOpen(f'{PATH}/{name}/.gitignore', '.env')
+    alter_open(f'{PATH}/{name}/.gitignore', '.env')
 
     Path(f'{PATH}/{name}/src').mkdir()
     system(f'git init {PATH}/{name}')

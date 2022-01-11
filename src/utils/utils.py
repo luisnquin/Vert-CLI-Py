@@ -8,48 +8,49 @@ from re import match
 from typer import echo, style, colors
 
 
-def printError(error: str) -> None:
+def print_error(error: str) -> None:
     echo(style(f'\nERROR: {error}', fg=colors.RED), err=True)
 
 
-def printFatal(error: str) -> None:
+def print_fatal(error: str) -> None:
     echo(style(f'\nFATAL: {error}', fg=colors.RED,
          bg=colors.BRIGHT_WHITE), err=True)
 
 
-def printWarning(msg: str) -> None:
+def print_warning(msg: str) -> None:
     echo(style(f'\nWARNING: {msg}', fg=colors.MAGENTA))
 
 
-def printSuggestion(msg: str) -> None:
+def print_prompt(msg: str) -> None:
     echo(style(f'\n{msg}', fg=colors.BRIGHT_YELLOW))
 
 
-def printSuccess(msg: str) -> None:
+def print_success(msg: str) -> None:
     echo(style(f'\n{msg}', fg=colors.BRIGHT_GREEN))
 
 
-def overwriteconfigJSON(content: dict, path: str) -> None:
-    file: TextIOWrapper = open(path, 'w', encoding='UTF-8')
-    dump(content, file, indent=4)
-    file.close()
-
-
-def getconfigJSON(configpath: str) -> dict:
-    file: TextIOWrapper = open(configpath, 'r')
+def get_config(path: str) -> dict:
+    file: TextIOWrapper = open(path, 'r')
     content: dict = load(file)
     file.close()
 
     return content
 
 
-def alternativeOpen(path: str, to_write: str) -> None:
+def overwrite_config(content: dict, path: str) -> None:
+    file: TextIOWrapper = open(path, 'w', encoding='UTF-8')
+    dump(content, file, indent=4)
+    file.close()
+
+
+def alter_open(path: str, to_write: str) -> None:
     file: TextIOWrapper = open(path, 'w', encoding='UTF-8')
     file.write(to_write)
     file.close()
 
 
-def checkAndFixPath(path: str) -> Union[str, bool]:
+# I don't know the pattern of Mac, so, this
+def check_and_fix_path(path: str) -> Union[str, bool]:
     if platform == 'linux' or platform == 'linux2':
         if bool(match(r'[~](\/\w+)+', path)):
             path: str = path[1:]
@@ -63,6 +64,7 @@ def checkAndFixPath(path: str) -> Union[str, bool]:
                 return False
 
         return path
+
     elif platform == 'win32':
         if bool(match(r'[A-z]:([\\]?[\/]?\w+)+', path)):
             if path[-1] == '/' or path[-1] == '\\':
@@ -70,7 +72,7 @@ def checkAndFixPath(path: str) -> Union[str, bool]:
 
             return path
 
-    return False
+    return path
 
 
 if __name__ == '__main__':
