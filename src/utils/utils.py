@@ -1,24 +1,29 @@
+from os import getenv, system, kill, getppid
+from psutil import process_iter
+from subprocess import Popen
 from io import TextIOWrapper
 from json import load, dump
+from signal import SIGHUP
 from typing import Union
 from sys import platform
-from os import getenv
 from re import match
 
 from typer import echo, style, colors
+from inquirer import prompt, List
+from typing import Union
 
 
 def print_error(error: str) -> None:
-    echo(style(f'\nERROR: {error}', fg=colors.RED), err=True)
+    echo(style(f'\nERROR:\n{error}', fg=colors.RED), err=True)
 
 
 def print_fatal(error: str) -> None:
-    echo(style(f'\nFATAL: {error}', fg=colors.RED,
+    echo(style(f'\nFATAL:\n{error}', fg=colors.RED,
          bg=colors.BRIGHT_WHITE), err=True)
 
 
 def print_warning(msg: str) -> None:
-    echo(style(f'\nWARNING: {msg}', fg=colors.MAGENTA))
+    echo(style(f'\nWARNING:\n{msg}', fg=colors.MAGENTA))
 
 
 def print_prompt(msg: str) -> None:
@@ -73,6 +78,47 @@ def check_and_fix_path(path: str) -> Union[str, bool]:
             return path
 
     return path
+
+
+def open_vscode_or_not(path: str = ...) -> None:
+    options: list[str] = \
+        ['Nothing', 'Close terminal and open in VSCode', 'Open VSCode']
+
+    answer: Union[dict, None] = prompt(
+        [List('action', message="What do you want to do with the project?", choices=options)])
+
+    if answer['action'] == options[1]:
+        system(f'code {path}')
+        kill(getppid(), SIGHUP)
+
+    elif answer['action'] == options[2]:
+        system(f'code {path}')
+
+
+def data_proccessing(value: str) -> str:
+    if value.find('\'') != -1:
+        value: str = value.replace('\'', '\'\'')
+
+    return value
+
+
+def is_tasker_active() -> bool:
+    for proc in process_iter():
+        if proc.name() == 'tasker' or proc.name() == 'tasker.exe':
+            return True
+
+    return False
+
+
+def run_tasker_process(path: str) -> None:
+    Popen(path)
+
+
+def kill_tasker_process() -> None:
+    for proc in process_iter():
+        if proc.name() == 'tasker' or proc.name() == 'tasker.exe':
+            proc.kill()
+            return
 
 
 if __name__ == '__main__':

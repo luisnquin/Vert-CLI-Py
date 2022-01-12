@@ -1,6 +1,6 @@
 import typer
 
-from utils.utils import print_success, get_config
+from utils.utils import print_success, open_vscode_or_not
 from gen.staticgen import gen_static_project
 from gen.gogen import gen_go_project
 from gen.pygen import gen_py_project
@@ -14,9 +14,9 @@ def go(project_name=typer.Option(..., prompt=True, help='A new Go project will b
     """
     vert gen go
     """
-    gen_go_project(project_name)
-    print_success('Project ready in: {}'
-                  .format(get_config('./config.json')['path']))
+    path: str = gen_go_project(project_name)
+    print_success(f'Project ready in: {path}\n')
+    open_vscode_or_not(path)
 
     raise typer.Exit()
 
@@ -26,9 +26,9 @@ def py(project_name=typer.Option(..., prompt=True, help='A new Python project wi
     """
     vert gen py
     """
-    gen_py_project(project_name)
-    print_success('Project ready in: {}'
-                  .format(get_config('./config.json')['path']))
+    path: str = gen_py_project(project_name)
+    print_success(f'Project ready in: {path}\n')
+    open_vscode_or_not(path)
 
     raise typer.Exit()
 
@@ -38,8 +38,8 @@ def static(project_name=typer.Option(..., prompt=True, help='A new Python projec
     """
     vert gen static
     """
-    gen_static_project(project_name)
-    print_success('Project ready in: {}'
-                  .format(get_config('./config.json')['path']))
+    path: str = gen_static_project(project_name)
+    print_success(f'Project ready in: {path}\n')
+    open_vscode_or_not(path)
 
     raise typer.Exit()

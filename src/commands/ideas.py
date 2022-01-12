@@ -4,7 +4,7 @@ from rich.box import SQUARE
 from typing import Union
 import typer
 
-from utils.utils import print_error
+from utils.utils import print_error, data_proccessing
 from db.conn import DbConnection
 from db.models import Ideas
 
@@ -21,6 +21,8 @@ def get():
     conn: object = DbConnection()
     query: str = Ideas.get()
     rows: Union[tuple[tuple[any]], str] = conn.execute(query=query, get=True)
+    conn.close()
+
     if type(rows) == str:
         print_error(rows)
         raise typer.Exit(code=1)
@@ -30,7 +32,7 @@ def get():
     table.add_column('Name')
     table.add_column('Datetime')
     for row in rows:
-        table.add_row(row[0], row[1], row[2])
+        table.add_row(str(row[0]), row[1], row[2])
 
     console.print(table)
     raise typer.Exit()
@@ -42,8 +44,10 @@ def add(name: str = typer.Option(..., prompt='Idea')):
     vert ideas add
     """
     conn: object = DbConnection()
+    name:str = data_proccessing(name)
     query: str = Ideas(name=name).add()
     typer.echo(conn.execute(query))
+    conn.close()
     raise typer.Exit()
 
 
@@ -55,4 +59,5 @@ def remove(id: int = typer.Argument(...)):
     conn: object = DbConnection()
     query: str = Ideas(id).delete()
     typer.echo(conn.execute(query=query))
+    conn.close()
     raise typer.Exit()

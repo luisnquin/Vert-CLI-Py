@@ -1,4 +1,5 @@
 from pathlib import Path
+from sys import platform
 from os import system
 from re import search
 
@@ -10,7 +11,7 @@ from utils.utils import alter_open, get_config, print_error, print_warning
 PATH: str = get_config('./config.json')['path']
 
 
-def gen_static_project(name: str) -> None:
+def gen_static_project(name: str) -> str:
     if search('\s', name) is not None:
         print_warning('No spaces. It would create two directories')
         raise Abort()
@@ -62,6 +63,13 @@ def gen_static_project(name: str) -> None:
     Path(f'{PATH}/{name}/src/scss/styles.scss').touch()
     Path(f'{PATH}/{name}/src/scss/_variables.scss').touch()
     Path(f'{PATH}/{name}/src/scss/_mixins.scss').touch()
+
+    if platform == 'linux' or platform == 'linux2':
+        system('clear')
+    elif platform == 'win32':
+        system('cls')
+
+    return f'{PATH}/{name}'
 
 
 if __name__ == '__main__':

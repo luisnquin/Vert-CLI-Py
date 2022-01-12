@@ -4,9 +4,9 @@ from rich.box import SQUARE
 from typing import Union
 import typer
 
+from utils.utils import print_error
 from db.conn import DbConnection
 from db.models import Categories
-from utils.utils import print_error
 
 
 category: object = typer.Typer()
@@ -21,6 +21,7 @@ def get():
     conn: object = DbConnection()
     query: str = Categories.get()
     rows: Union[tuple[tuple[any]], str] = conn.execute(query, get=True)
+    conn.close()
 
     if type(rows) == str:
         print_error(rows)
@@ -32,7 +33,6 @@ def get():
         table.add_row(f'- {row[0]}')
 
     console.print(table)
-
     raise typer.Exit()
 
 
@@ -44,6 +44,7 @@ def add(name: str = typer.Option(..., prompt='Name of the new category')):
     conn: object = DbConnection()
     query: str = Categories(name=name).add()
     typer.echo(conn.execute(query))
+    conn.close()
     raise typer.Exit()
 
 
@@ -55,4 +56,5 @@ def remove(id: int = typer.Argument(...)):
     conn: object = DbConnection()
     query: str = Categories(id).delete()
     typer.echo(conn.execute(query))
+    conn.close()
     raise typer.Exit()

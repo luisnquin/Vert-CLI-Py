@@ -1,16 +1,19 @@
 from commands.categories import category
+from commands.notifier import notifier
 from commands.tables import tables
 from commands.tasks import tasks
 from commands.ideas import ideas
 from commands.core import core
 from commands.gen import gen
 
-import typer
+from typer import Typer
 
-app: object = typer.Typer()
+
+app: object = Typer()
 
 
 app.add_typer(category, name='categories')
+app.add_typer(notifier, name='notifier')
 app.add_typer(tables, name='tables')
 app.add_typer(tasks, name='tasks')
 app.add_typer(ideas, name='ideas')

@@ -1,12 +1,13 @@
+from inquirer import prompt, List
 from rich.console import Console
 from rich.table import Table
 from rich.box import SQUARE
 from typing import Union
 import typer
 
-from db.conn import DbConnection
+from utils.utils import print_error, data_proccessing
 from db.models import Categories, Tasks
-from utils.utils import print_prompt, print_error, print_warning
+from db.conn import DbConnection
 
 
 tasks: object = typer.Typer()
@@ -32,60 +33,63 @@ def get():
     table.add_column('Status')
     table.add_column('Datetime')
     for row in rows:
-        table.add_row(row[0], row[1], row[2], row[3], row[4])
+        table.add_row(str(row[0]), row[1], row[2], row[3], row[4])
 
     console.print(table)
     raise typer.Exit()
 
 
 @tasks.command()
-def add(name: str = typer.Option(..., prompt='Task name'), category: str = typer.Option(..., prompt='Task category')):
+def add(name: str = typer.Option(..., prompt='Task name')):
     """
     vert tasks add
     """
     conn: object = DbConnection()
-    flag: bool = conn.exists(Categories.exists(category))
+    query: str = Categories.get()
+    categories: Union[tuple[str], str] = conn.execute(query, get=True)
 
-    if flag != True:
-        print_error('The category does not exists!\n')
-        print_prompt('Check -> vert showcategories')
-        raise typer.Abort()
-
-    query = Tasks(name=name, category=category, status=0).add()
-    typer.echo(conn.execute(query=query))
-    raise typer.Exit()
-
-
-@tasks.command()
-def update_status(id: int = typer.Argument(...), status: int = typer.Option(..., '--status')):
-    """
-    vert tasks update-status <id> --status <0 or 1>
-    """
-    if status not in [0, 1]:
-        print_warning('No changes, your status need to be zero or one')
+    if type(categories) == str:
+        print_error(categories)
         raise typer.Exit(code=1)
 
-    conn: object = DbConnection()
-    query: str = Tasks(id=id, status=status).update_status()
+    answer: Union[dict, None] = \
+        prompt([List(name='categories', message='Select a category',
+               choices=[c[0] for c in categories])])
+
+    name: str = data_proccessing(name)
+    query: str = \
+        Tasks(name=name, category=answer.get('categories'), status=0).add()
+
     typer.echo(conn.execute(query=query))
+    conn.close()
     raise typer.Exit()
 
 
 @tasks.command()
-def update_category(id: int = typer.Argument(...), category: str = typer.Option(..., '--category')):
-    """
-    vert task update-category <id> --category <category-name>
-    """
-    conn: object = DbConnection()
-    flag: str = conn.exists(Categories.exists(category=category))
-    if flag:
-        query: str = Tasks(id=id, category=category).update_category()
+def update(id: int = typer.Argument(...), action: str = typer.Option(..., prompt='Status or category[s/c]')):
+    if action == 's':
+        conn: object = DbConnection()
+        answer: Union[dict, None] = \
+            prompt([List(name='status', message='Choose an status', choices=[0, 1])])
+
+        query: str = Tasks(id=id, status=answer['status']).update_status()
         typer.echo(conn.execute(query=query))
+        conn.close()
         raise typer.Exit()
 
-    print_warning("The category doesn't exist in <categories-table>")
-    print_prompt('Check -> vert showcategories')
-    raise typer.Exit(code=1)
+    elif action == 'c':
+        conn: object = DbConnection()
+        categories: tuple[str] = conn.execute(query=Categories.get(), get=True)
+        answer: Union[dict, None] = \
+            prompt([List('categories', message='Choose an category',
+                   choises=[c[0] for c in categories])])
+
+        query: str = \
+            Tasks(id=id, categories=answer.get('categories')).update_category()
+
+        typer.echo(conn.execute(query=query))
+        conn.close()
+        raise typer.Exit()
 
 
 @tasks.command()
@@ -96,6 +100,7 @@ def remove(id: int = typer.Argument(...)):
     conn: object = DbConnection()
     query: str = Tasks(id=id).delete()
     typer.echo(conn.execute(query=query))
+    conn.close()
     raise typer.Exit()
 
 
@@ -107,4 +112,5 @@ def clean():
     conn: object = DbConnection()
     query: str = Tasks.clean()
     typer.echo(conn.execute(query=query))
+    conn.close()
     raise typer.Exit()

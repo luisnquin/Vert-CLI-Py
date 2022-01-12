@@ -1,6 +1,26 @@
 from datetime import datetime
 
 
+class Tables():
+    @staticmethod
+    def get() -> str:
+        return 'SELECT table_name FROM information_schema.tables WHERE table_schema=\'public\' AND table_type=\'BASE TABLE\';'
+
+    @staticmethod
+    def migrate(path: str) -> list[str]:
+        with open(path, 'r') as sql:
+            queries: list[str] = sql.readlines()
+
+        return queries
+
+    @staticmethod
+    def drop_and_create(path: str) -> list[str]:
+        with open(path, 'r') as sql:
+            queries: list[str] = sql.readlines()
+
+        return queries
+
+
 class Tasks():
     @staticmethod
     def get() -> str:
@@ -35,10 +55,6 @@ class Categories():
     def get() -> str:
         return 'SELECT name FROM categories;'
 
-    @staticmethod
-    def exists(category: str) -> str:
-        return f"SELECT COUNT(id) FROM categories WHERE name LIKE '{category}%';"
-
     def __init__(self, id: int = None, name: str = None):
         self.id: int = id
         self.name: str = name
@@ -55,7 +71,7 @@ class Ideas():
     def get() -> str:
         return 'SELECT * FROM ideas;'
 
-    def __init__(self, id: id, name: str):
+    def __init__(self, id: id = None, name: str = None):
         self.id: int = id
         self.name: str = name
         self.datetime: datetime = datetime.now()
