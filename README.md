@@ -12,6 +12,8 @@ alias vert='~/path/to/vert-cli'
 ```
 Later: ```source .zshrc```
 
+![Alt Text](https://media.giphy.com/media/OHi0W7hGDwmI8ejPyP/giphy.gif)
+
 Once this is done, you can enjoy it just typing ***vert --help***
 <br>This will drop to you a list of commands as:
 
@@ -32,20 +34,8 @@ Commands:
 
 Well, look the options of one command, like ```vert core --help```
 
-```     
-Usage: main.py core [OPTIONS] COMMAND [ARGS]...
+![Alt Text](https://media.giphy.com/media/lHVG4ds0Rtzy5GP0wi/giphy.gif)
 
-Commands:
-  change-persistence  Choose between PostgreSQL and JSON, PostgreSQL for...
-  config              The short command that joins your database...
-  db-config           Don't configure this if you don't want to to use...
-  kill-tasker         To end the tasker process
-  ping                Check your database connection or JSON file...
-  reload-tasker       Weird use case but it still makes sense to have this
-  start-tasker        This command makes the topic of routines make sense
-  version             vert core version
-  workspace-config    vert gen <set> It works with an absolute path, so...
-```
 Comes the most underrated part, type ```vert core version```
 <br>
 ***Congratulations!*** 🎉, you just have to explore the other commands in the other applications.
@@ -56,6 +46,8 @@ Comes the most underrated part, type ```vert core version```
  - Type ```vert core config``` to configure you database connection and workspace path
  - Then ```vert core change-persistence```
  - Finally to build the tables in your database: ```vert tables rebuild```
+ 
+![Alt Text](https://media.giphy.com/media/e7VOxIUHJA7QRJy7a6/giphy.gif)
 
 ###  Workspace
 You know what I'm talking about, the placement where your projects are, give me an absolute path as ```~/workspace/projects```
