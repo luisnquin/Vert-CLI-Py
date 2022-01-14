@@ -1,34 +1,13 @@
 {
-    "path": "/home/luisnquin/workspace/projects",
-    "database": "<database>",
-    "user": "<username>",
-    "password": "<pwd>",
-    "host": "localhost",
-    "port": 5432,
+    "path": "/home/user/workspace/projects",
+    "isUsingSQL": false,
+    "dsn": "dbname=<> user=<> password=<> host=<> port=<>",
     "notifier": [
         {
             "id": 1,
             "title": "Clean",
             "message": "from VertCLI",
-            "hour": "19:46:00"
-        },
-        {
-            "id": 2,
-            "title": "Alguna rutina",
-            "message": "from VertCLI",
-            "hour": "19:47:00"
-        },
-        {
-            "id": 3,
-            "title": "Remediar la vida de los dem\u00e1s basado en experiencias pasadas",
-            "message": "from VertCLI",
-            "hour": "19:48:00"
-        },
-        {
-            "id": 4,
-            "title": "El ba\u00f1o",
-            "message": "from VertCLI",
-            "hour": "21:33:00"
+            "hour": "21:22:00"
         }
     ]
 }

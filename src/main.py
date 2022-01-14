@@ -1,10 +1,11 @@
-from commands.categories import category
-from commands.notifier import notifier
-from commands.tables import tables
-from commands.tasks import tasks
-from commands.ideas import ideas
-from commands.core import core
-from commands.gen import gen
+from apps.categories import category
+from apps.notifier import notifier
+from apps.tables import tables
+from apps.tasks import tasks
+from apps.ideas import ideas
+from apps.core import core
+from apps.urls import urls
+from apps.gen import gen
 
 from typer import Typer
 
@@ -18,6 +19,7 @@ app.add_typer(tables, name='tables')
 app.add_typer(tasks, name='tasks')
 app.add_typer(ideas, name='ideas')
 app.add_typer(core, name='core')
+app.add_typer(urls, name='urls')
 app.add_typer(gen, name='gen')
 
 

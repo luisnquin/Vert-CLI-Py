@@ -1,4 +1,3 @@
-from time import sleep
 from pathlib import Path
 from sys import platform
 from os import system
@@ -6,10 +5,12 @@ from re import search
 
 from typer import Abort
 
-from utils.utils import alter_open, get_config, print_warning, print_error
+from utils.utils import alter_open, get_json, print_warning, print_error
+from constants.constants import config_path
 
 
-PATH: str = get_config('./config.json')['path']
+
+PATH: str = get_json(config_path)['path']
 
 
 def gen_py_project(name: str) -> str:
@@ -31,7 +32,6 @@ def gen_py_project(name: str) -> str:
     Path(f'{PATH}/{name}/src').mkdir()
     system(f'git init {PATH}/{name}')
     system(f'virtualenv {PATH}/{name}/venv')
-    sleep(5)
     if platform == 'linux' or platform == 'linux2':
         system(f'source {PATH}/{name}/venv/bin/activate.csh')
     elif platform == 'win32':

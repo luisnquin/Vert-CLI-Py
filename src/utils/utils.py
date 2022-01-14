@@ -1,5 +1,9 @@
 from os import getenv, system, kill, getppid
+from timeago import format as dt_format
+from urllib.request import urlopen
 from psutil import process_iter
+from bs4 import BeautifulSoup
+from datetime import datetime
 from subprocess import Popen
 from io import TextIOWrapper
 from json import load, dump
@@ -8,50 +12,75 @@ from typing import Union
 from sys import platform
 from re import match
 
-from typer import echo, style, colors
+from typer import echo, style, Exit
 from inquirer import prompt, List
 from typing import Union
 
+from constants.constants import config_path, src_path
+
 
 def print_error(error: str) -> None:
-    echo(style(f'\nERROR:\n{error}', fg=colors.RED), err=True)
+    echo(style(f'\nERROR:\n{error}', fg='red'), err=True)
 
 
 def print_fatal(error: str) -> None:
-    echo(style(f'\nFATAL:\n{error}', fg=colors.RED,
-         bg=colors.BRIGHT_WHITE), err=True)
+    echo(style(f'\nFATAL:\n{error}',
+               fg='red', bg='bright_white'), err=True)
 
 
 def print_warning(msg: str) -> None:
-    echo(style(f'\nWARNING:\n{msg}', fg=colors.MAGENTA))
+    echo(style(f'\nWARNING:\n{msg}', fg='magenta'))
 
 
 def print_prompt(msg: str) -> None:
-    echo(style(f'\n{msg}', fg=colors.BRIGHT_YELLOW))
+    echo(style(f'\n{msg}', fg='bright_yellow'))
 
 
 def print_success(msg: str) -> None:
-    echo(style(f'\n{msg}', fg=colors.BRIGHT_GREEN))
+    echo(style(f'\n{msg}', fg='bright_green'))
 
 
-def get_config(path: str) -> dict:
-    file: TextIOWrapper = open(path, 'r')
-    content: dict = load(file)
-    file.close()
+def get_json(path: str) -> dict:
+    try:
+        file: TextIOWrapper = open(path, 'r')
+        content: dict = load(file)
+        file.close()
+        return content
 
-    return content
+    except Exception as error:
+        print_error(error)
+        raise Exit(code=1)
 
 
-def overwrite_config(content: dict, path: str) -> None:
-    file: TextIOWrapper = open(path, 'w', encoding='UTF-8')
-    dump(content, file, indent=4)
-    file.close()
+def isUsingSQL() -> bool:
+    try:
+        file: TextIOWrapper = open(config_path, 'r')
+        config: dict = load(file)
+        file.close()
+        return config['isUsingSQL']
+
+    except Exception as error:
+        print_error(error)
+        raise Exit(code=1)
+
+
+def overwrite_json(json: dict, path: str) -> None:
+    try:
+        file: TextIOWrapper = open(path, 'w', encoding='UTF-8')
+        dump(json, file, indent=4)
+        file.close()
+        return
+
+    except Exception as error:
+        print_error(error)
+        raise Exit(code=1)
 
 
 def alter_open(path: str, to_write: str) -> None:
     file: TextIOWrapper = open(path, 'w', encoding='UTF-8')
     file.write(to_write)
     file.close()
+    return
 
 
 # I don't know the pattern of Mac, so, this
@@ -75,7 +104,12 @@ def check_and_fix_path(path: str) -> Union[str, bool]:
             if path[-1] == '/' or path[-1] == '\\':
                 path: str = path[:-1]
 
+            if path.find('/') != -1:
+                path: str = path.replace('/', '\\')
+
             return path
+
+        return False
 
     return path
 
@@ -84,18 +118,20 @@ def open_vscode_or_not(path: str = ...) -> None:
     options: list[str] = \
         ['Nothing', 'Close terminal and open in VSCode', 'Open VSCode']
 
-    answer: Union[dict, None] = prompt(
-        [List('action', message="What do you want to do with the project?", choices=options)])
+    answer: Union[dict, None] \
+        = prompt([List('action', message="What do you want to do with the project?", choices=options)])
 
     if answer['action'] == options[1]:
         system(f'code {path}')
         kill(getppid(), SIGHUP)
+        return
 
-    elif answer['action'] == options[2]:
+    if answer['action'] == options[2]:
         system(f'code {path}')
+        return
 
 
-def data_proccessing(value: str) -> str:
+def prepare_sql_value(value: str) -> str:
     if value.find('\'') != -1:
         value: str = value.replace('\'', '\'\'')
 
@@ -111,7 +147,7 @@ def is_tasker_active() -> bool:
 
 
 def run_tasker_process(path: str) -> None:
-    Popen(path)
+    Popen([path, "-abs-path", src_path])
 
 
 def kill_tasker_process() -> None:
@@ -119,6 +155,20 @@ def kill_tasker_process() -> None:
         if proc.name() == 'tasker' or proc.name() == 'tasker.exe':
             proc.kill()
             return
+
+
+def html_title_extractor(url: str) -> Union[str, bool]:
+    try:
+        soup = BeautifulSoup(urlopen(url), features='html5lib')
+        return soup.title.get_text()
+
+    except Exception as error:
+        if error:
+            return False
+
+
+def relative_dt(dt: str) -> str:
+    return dt_format(datetime.strptime(dt, '%Y-%m-%d %H:%M:%S.%f'), now=datetime.now())
 
 
 if __name__ == '__main__':

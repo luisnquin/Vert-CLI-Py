@@ -13,6 +13,9 @@ gen: object = typer.Typer()
 def go(project_name=typer.Option(..., prompt=True, help='A new Go project will be created in your workspace path')):
     """
     vert gen go
+
+    To generate a new Go project,
+    just use it if you have your workspace set up
     """
     path: str = gen_go_project(project_name)
     print_success(f'Project ready in: {path}\n')
@@ -25,6 +28,9 @@ def go(project_name=typer.Option(..., prompt=True, help='A new Go project will b
 def py(project_name=typer.Option(..., prompt=True, help='A new Python project will be created in your workspace path')):
     """
     vert gen py
+
+    To generate a new Python project,
+    just use it if you have your workspace set up
     """
     path: str = gen_py_project(project_name)
     print_success(f'Project ready in: {path}\n')
@@ -37,6 +43,9 @@ def py(project_name=typer.Option(..., prompt=True, help='A new Python project wi
 def static(project_name=typer.Option(..., prompt=True, help='A new Python project will be created in your workspace path')):
     """
     vert gen static
+
+    To generate a new Static project,
+    just use it if you have your workspace set up
     """
     path: str = gen_static_project(project_name)
     print_success(f'Project ready in: {path}\n')

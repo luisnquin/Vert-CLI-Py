@@ -1,0 +1,49 @@
+{
+    "categories": [
+        {
+            "id": 1,
+            "name": "Programming"
+        },
+        {
+            "id": 2,
+            "name": "Projects"
+        },
+        {
+            "id": 3,
+            "name": "Work"
+        },
+        {
+            "id": 4,
+            "name": "Homework"
+        },
+        {
+            "id": 5,
+            "name": "Stuff"
+        }
+    ],
+    "ideas": [],
+    "tasks": [
+        {
+            "id": 1,
+            "name": "aesda",
+            "status": "\u2717",
+            "category": "Programming",
+            "datetime": "2022-01-12 21:06:31.347768"
+        },
+        {
+            "id": 3,
+            "name": "aesda",
+            "status": "\u2717",
+            "category": "Projects",
+            "datetime": "2022-01-13 12:16:05.068705"
+        }
+    ],
+    "urls": [
+        {
+            "id": 1,
+            "title": "Unknown",
+            "url": "https://www.offensive-security.com/",
+            "datetime": "2022-01-13 12:32:06.654080"
+        }
+    ]
+}

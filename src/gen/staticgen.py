@@ -5,10 +5,11 @@ from re import search
 
 from typer import Abort
 
-from utils.utils import alter_open, get_config, print_error, print_warning
+from utils.utils import alter_open, get_json, print_error, print_warning
+from constants.constants import config_path
 
 
-PATH: str = get_config('./config.json')['path']
+PATH: str = get_json(config_path)['path']
 
 
 def gen_static_project(name: str) -> str:

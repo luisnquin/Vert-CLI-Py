@@ -5,10 +5,11 @@ from re import search
 
 from typer import Abort
 
-from utils.utils import alter_open, get_config, print_warning, print_error
+from utils.utils import alter_open, get_json, print_warning, print_error
+from constants.constants import config_path
 
 
-PATH: str = get_config('./config.json')['path']
+PATH: str = get_json(config_path)['path']
 
 
 def gen_go_project(name: str) -> str:

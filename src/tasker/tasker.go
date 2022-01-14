@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -13,10 +14,14 @@ import (
 
 var (
 	current_minute string
+	abs            string
 )
 
 func main() {
-	file, err := ioutil.ReadFile("./config.json")
+	flag.StringVar(&abs, "abs-path", "abs-path", "Absolute path")
+	flag.Parse()
+
+	file, err := ioutil.ReadFile(abs + "/config.json")
 	if err != nil {
 		panic(err)
 	}
@@ -30,11 +35,10 @@ func main() {
 		current_minute = fmt.Sprintf("%v:%v:00", current.Hour(), current.Minute())
 		for _, n := range c.Notifier {
 			if n.Hour == current_minute {
-				err := beeep.Notify(n.Title, n.Message, "./assets/command-line.png")
+				err := beeep.Notify(n.Title, n.Message, abs+"/assets/command-line.png")
 				if err != nil {
 					panic(err)
 				}
-				fmt.Println("Coincidence")
 			}
 		}
 	}
