@@ -3,16 +3,8 @@ A CLI made with Typer.
 
 **Sintaxis:** ```vert <app> <command> [arg]```
 
-By default, your persistence is in JSON, not in PostgreSQL
-
 ## User guide
-In Linux, for a better experience, type ```sudo nano .zshrc``` in the last line:
-```
-alias vert='~/path/to/vert-cli'
-```
-Later: ```source .zshrc```
-
-![Alt Text](https://media.giphy.com/media/OHi0W7hGDwmI8ejPyP/giphy.gif)
+Just type ```source install.sh``` in the root directory project
 
 Once this is done, you can enjoy it just typing ***vert --help***
 <br>This will drop to you a list of commands as:
@@ -40,28 +32,13 @@ Comes the most underrated part, type ```vert core version```
 <br>
 ***Congratulations!*** 🎉, you just have to explore the other commands in the other applications.
 
-## Configurations
+## Configuration
 
 ### PostgreSQL and Workspace configuration
- - Type ```vert core config``` to configure you database connection and workspace path
- - Then ```vert core change-persistence```
- - Finally to build the tables in your database: ```vert tables rebuild```
+For a great startup, just type ```vert core config```, this command will display to you the PostgreSQL and workspace configuration, please configure it
  
 ![Alt Text](https://media.giphy.com/media/e7VOxIUHJA7QRJy7a6/giphy.gif)
 
-###  Workspace
-You know what I'm talking about, the placement where your projects are, give me an absolute path as ```~/workspace/projects```
-
-```
-vert core workspace-config
-```
-
-### PostgreSQL
-The option for a better performance
-
- - Type ```vert core db-config``` to set your settings, previously you need to create an PSQL database
- - Later ```vert core change-persistence``` and select ***PostgreSQL***.
- - To build your tables in your database, type ```vert tables rebuild```
  
 
 ## License
