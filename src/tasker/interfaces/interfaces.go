@@ -1,17 +1,12 @@
 package interfaces
 
-type NotifierConfig struct {
-	Id      uint   `json:"id"`
-	Title   string `json:"title"`
-	Message string `json:"message"`
-	Hour    string `json:"hour"`
+import "time"
+
+type Notifier struct {
+	Id      uint      
+	Title   string    
+	Message string    
+	Hour    time.Time 
 }
 
-type Config struct {
-	Path     string           `json:"path"`
-	Database string           `json:"database"`
-	User     string           `json:"user"`
-	Password string           `json:"password"`
-	Host     string           `json:"localhost"`
-	Notifier []NotifierConfig `json:"notifier"`
-}
+type Notifications []Notifier
